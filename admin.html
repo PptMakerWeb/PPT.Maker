@@ -285,7 +285,7 @@
 
             // Simulate authentication
             if (username === validCredentials.username && password === validCredentials.password) {
-                return true;
+                window.location.href = "admin_dashboard.html";
             }
             return false;
         }

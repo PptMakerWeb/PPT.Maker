@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Portfolio Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #333;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input.error {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: auto;
+        }
+
+        .forgot-password {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password:hover {
+            color: #764ba2;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+            display: none;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .admin-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 24px;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="admin-icon">👤</div>
+            <h1>Admin Login</h1>
+            <p>Portfolio Management System</p>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            Welcome back! Redirecting to dashboard...
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username or Email</label>
+                <input type="text" id="username" name="username" required>
+                <div class="error-message" id="usernameError">Please enter a valid username or email</div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+                <div class="error-message" id="passwordError">Password must be at least 6 characters</div>
+            </div>
+
+            <div class="remember-forgot">
+                <div class="remember-me">
+                    <input type="checkbox" id="rememberMe" name="rememberMe">
+                    <label for="rememberMe">Remember me</label>
+                </div>
+                <a href="#" class="forgot-password" onclick="handleForgotPassword()">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">
+                Sign In
+            </button>
+        </form>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const successMessage = document.getElementById('successMessage');
+
+        // Demo credentials for testing
+        const validCredentials = {
+            username: 'admin',
+            password: 'admin123'
+        };
+
+        function showError(inputElement, errorElement, message) {
+            inputElement.classList.add('error');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        function hideError(inputElement, errorElement) {
+            inputElement.classList.remove('error');
+            errorElement.style.display = 'none';
+        }
+
+        function validateForm() {
+            let isValid = true;
+            
+            // Reset errors
+            hideError(usernameInput, document.getElementById('usernameError'));
+            hideError(passwordInput, document.getElementById('passwordError'));
+
+            // Validate username
+            if (!usernameInput.value.trim()) {
+                showError(usernameInput, document.getElementById('usernameError'), 'Username is required');
+                isValid = false;
+            }
+
+            // Validate password
+            if (passwordInput.value.length < 6) {
+                showError(passwordInput, document.getElementById('passwordError'), 'Password must be at least 6 characters');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function simulateLogin() {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+
+            // Simulate authentication
+            if (username === validCredentials.username && password === validCredentials.password) {
+                return true;
+            }
+            return false;
+        }
+
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!validateForm()) {
+                return;
+            }
+
+            // Show loading state
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="loading"></span>Signing in...';
+
+            // Simulate API call delay
+            setTimeout(() => {
+                if (simulateLogin()) {
+                    // Success
+                    successMessage.style.display = 'block';
+                    loginBtn.innerHTML = 'Success!';
+                    loginBtn.style.background = '#28a745';
+                    
+                    // Simulate redirect to dashboard
+                    setTimeout(() => {
+                        alert('Login successful! In a real application, you would be redirected to the portfolio management dashboard.');
+                        // window.location.href = '/admin/dashboard';
+                        resetForm();
+                    }, 1500);
+                } else {
+                    // Error
+                    showError(usernameInput, document.getElementById('usernameError'), 'Invalid credentials');
+                    showError(passwordInput, document.getElementById('passwordError'), 'Please check your password');
+                    resetButton();
+                }
+            }, 1500);
+        });
+
+        function resetButton() {
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = 'Sign In';
+            loginBtn.style.background = '';
+        }
+
+        function resetForm() {
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = 'Sign In';
+            loginBtn.style.background = '';
+            successMessage.style.display = 'none';
+            usernameInput.value = '';
+            passwordInput.value = '';
+            document.getElementById('rememberMe').checked = false;
+        }
+
+        function handleForgotPassword() {
+            alert('Forgot password functionality would typically send a reset email or redirect to a password reset page.');
+        }
+
+        // Clear errors on input
+        usernameInput.addEventListener('input', () => {
+            hideError(usernameInput, document.getElementById('usernameError'));
+        });
+
+        passwordInput.addEventListener('input', () => {
+            hideError(passwordInput, document.getElementById('passwordError'));
+        });
+
+        // Demo hint
+        setTimeout(() => {
+            console.log('Demo credentials - Username: admin, Password: admin123');
+        }, 1000);
+    </script>
+</body>
+</html>

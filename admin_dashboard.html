@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Portfolio Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.mobile-hidden {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-header {
+            padding: 30px 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 15px 25px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255,255,255,0.1);
+            border-left-color: #fff;
+            padding-left: 30px;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 0;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.sidebar-collapsed {
+            margin-left: 0;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #e9ecef;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border: 1px solid #f0f0f0;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .stat-icon.blue { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .stat-icon.green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
+        .stat-icon.orange { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+        .stat-icon.purple { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border: 1px solid #f0f0f0;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .recent-activity {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 16px;
+        }
+
+        .activity-icon.edit { background: #e3f2fd; color: #1976d2; }
+        .activity-icon.add { background: #e8f5e8; color: #4caf50; }
+        .activity-icon.delete { background: #ffebee; color: #f44336; }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 3px;
+        }
+
+        .activity-time {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .quick-action {
+            background: white;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .quick-action:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        .quick-action-icon {
+            font-size: 36px;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .quick-action-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .quick-action-desc {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.mobile-visible {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .header {
+                padding: 15px 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-right {
+                gap: 10px;
+            }
+
+            .btn {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Admin Panel</h2>
+                <p>Portfolio Management</p>
+            </div>
+            <div class="sidebar-nav">
+                <a href="#" class="nav-item active" onclick="showSection('dashboard')">
+                    <span class="nav-icon">📊</span>
+                    Dashboard
+                </a>
+                <a href="#" class="nav-item" onclick="showSection('projects')">
+                    <span class="nav-icon">💼</span>
+                    Projects
+                </a>
+                <a href="#" class="nav-item" onclick="showSection('skills')">
+                    <span class="nav-icon">🎯</span>
+                    Skills
+                </a>
+                <a href="#" class="nav-item" onclick="showSection('about')">
+                    <span class="nav-icon">👤</span>
+                    About Me
+                </a>
+                <a href="#" class="nav-item" onclick="showSection('contact')">
+                    <span class="nav-icon">📧</span>
+                    Contact Info
+                </a>
+                <a href="#" class="nav-item" onclick="showSection('settings')">
+                    <span class="nav-icon">⚙️</span>
+                    Settings
+                </a>
+                <a href="../index.html" class="nav-item">
+                    <span class="nav-icon">🌐</span>
+                    View Website
+                </a>
+                <a href="login.html" class="nav-item" onclick="logout()">
+                    <span class="nav-icon">🚪</span>
+                    Logout
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+                    <h1 id="pageTitle">Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <a href="../index.html" class="btn btn-secondary">
+                        <span>🌐</span>
+                        View Site
+                    </a>
+                    <button class="btn btn-primary" onclick="openModal('quickAdd')">
+                        <span>➕</span>
+                        Quick Add
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Dashboard Section -->
+                <div id="dashboard-section" class="content-section">
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon blue">💼</div>
+                            <div class="stat-number" id="projectCount">12</div>
+                            <div class="stat-label">Total Projects</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green">🎯</div>
+                            <div class="stat-number" id="skillCount">18</div>
+                            <div class="stat-label">Skills Listed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon orange">👁️</div>
+                            <div class="stat-number" id="viewCount">1,247</div>
+                            <div class="stat-label">Portfolio Views</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon purple">📧</div>
+                            <div class="stat-number" id="messageCount">23</div>
+                            <div class="stat-label">Messages Received</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="section">
+                        <div class="section-header">
+                            <h3 class="section-title">Quick Actions</h3>
+                        </div>
+                        <div class="quick-actions">
+                            <a href="#" class="quick-action" onclick="openModal('addProject')">
+                                <div class="quick-action-icon">➕</div>
+                                <div class="quick-action-title">Add Project</div>
+                                <div class="quick-action-desc">Create a new portfolio project</div>
+                            </a>
+                            <a href="#" class="quick-action" onclick="showSection('skills')">
+                                <div class="quick-action-icon">🎯</div>
+                                <div class="quick-action-title">Update Skills</div>
+                                <div class="quick-action-desc">Manage your skill set</div>
+                            </a>
+                            <a href="#" class="quick-action" onclick="showSection('about')">
+                                <div class="quick-action-icon">✏️</div>
+                                <div class="quick-action-title">Edit About</div>
+                                <div class="quick-action-desc">Update your bio and info</div>
+                            </a>
+                            <a href="../index.html" class="quick-action">
+                                <div class="quick-action-icon">🌐</div>
+                                <div class="quick-action-title">Preview Site</div>
+                                <div class="quick-action-desc">View your live portfolio</div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="section">
+                        <div class="section-header">
+                            <h3 class="section-title">Recent Activity</h3>
+                            <button class="btn btn-secondary" onclick="refreshActivity()">Refresh</button>
+                        </div>
+                        <ul class="recent-activity" id="recentActivity">
+                            <li class="activity-item">
+                                <div class="activity-icon edit">✏️</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Updated "E-commerce Website" project</div>
+                                    <div class="activity-time">2 hours ago</div>
+                                </div>
+                            </li>
+                            <li class="activity-item">
+                                <div class="activity-icon add">➕</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Added React.js to skills</div>
+                                    <div class="activity-time">1 day ago</div>
+                                </div>
+                            </li>
+                            <li class="activity-item">
+                                <div class="activity-icon edit">✏️</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Updated contact information</div>
+                                    <div class="activity-time">3 days ago</div>
+                                </div>
+                            </li>
+                            <li class="activity-item">
+                                <div class="activity-icon add">➕</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Published new blog post</div>
+                                    <div class="activity-time">1 week ago</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Other sections (hidden by default) -->
+                <div id="projects-section" class="content-section" style="display: none;">
+                    <div class="section">
+                        <div class="section-header">
+                            <h3 class="section-title">Manage Projects</h3>
+                            <button class="btn btn-primary" onclick="openModal('addProject')">Add New Project</button>
+                        </div>
+                        <p>Project management interface would go here. You can add, edit, and delete portfolio projects.</p>
+                    </div>
+                </div>
+
+                <div id="skills-section" class="content-section" style="display: none;">
+                    <div class="section">
+                        <div class="section-header">
+                            <h3 class="section-title">Manage Skills</h3>
+                            <button class="btn btn-primary" onclick="openModal('addSkill')">Add New Skill</button>
+                        </div>
+                        <p>Skills management interface would go here. You can add, edit, and organize your skills.</p>
+                    </div>
+                </div>
+
+                <div id="about-section" class="content-section" style="display: none;">
+                    <div class="section">
+                        <div class="section-header">
+                            <h3 class="section-title">Edit About Section</h3>
+                            <button class="btn btn-primary" onclick="saveAbout()">Save Changes</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="aboutText">About Me</label>
+                            <textarea id="aboutText" placeholder="Write about yourself...">I'm a passionate web developer with 5+ years of experience creating modern, responsive websites and applications. I love turning complex problems into simple, beautiful designs.</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="contact-section" class="content-section" style="display: none;">
+                    <div class="section">
+                        <div class="section-header">
+                            <h3 class="section-title">Contact Information</h3>
+                            <button class="btn btn-primary" onclick="saveContact()">Save Changes</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" value="admin@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" value="+1 (555) 123-4567">
+                        </div>
+                        <div class="form-group">
+                            <label for="linkedin">LinkedIn</label>
+                            <input type="url" id="linkedin" value="https://linkedin.com/in/yourprofile">
+                        </div>
+                        <div class="form-group">
+                            <label for="github">GitHub</label>
+                            <input type="url" id="github" value="https://github.com/yourusername">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="settings-section" class="content-section" style="display: none;">
+                    <div class="section">
+                        <div class="section-header">
+                            <h3 class="section-title">Settings</h3>
+                        </div>
+                        <p>General settings and preferences would go here.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="quickAdd" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Quick Add</h3>
+                <button class="modal-close" onclick="closeModal('quickAdd')">&times;</button>
+            </div>
+            <div class="quick-actions">
+                <a href="#" class="quick-action" onclick="closeModal('quickAdd'); openModal('addProject');">
+                    <div class="quick-action-icon">💼</div>
+                    <div class="quick-action-title">New Project</div>
+                </a>
+                <a href="#" class="quick-action" onclick="closeModal('quickAdd'); openModal('addSkill');">
+                    <div class="quick-action-icon">🎯</div>
+                    <div class="quick-action-title">New Skill</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="addProject" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Project</h3>
+                <button class="modal-close" onclick="closeModal('addProject')">&times;</button>
+            </div>
+            <form onsubmit="addProject(event)">
+                <div class="form-group">
+                    <label for="projectTitle">Project Title</label>
+                    <input type="text" id="projectTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="projectDescription">Description</label>
+                    <textarea id="projectDescription" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="projectTech">Technologies Used</label>
+                    <input type="text" id="projectTech" placeholder="React, Node.js, MongoDB...">
+                </div>
+                <div class="form-group">
+                    <label for="projectUrl">Project URL</label>
+                    <input type="url" id="projectUrl">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Add Project</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="addSkill" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Skill</h3>
+                <button class="modal-close" onclick="closeModal('addSkill')">&times;</button>
+            </div>
+            <form onsubmit="addSkill(event)">
+                <div class="form-group">
+                    <label for="skillName">Skill Name</label>
+                    <input type="text" id="skillName" required>
+                </div>
+                <div class="form-group">
+                    <label for="skillLevel">Skill Level</label>
+                    <select id="skillLevel" required>
+                        <option value="">Select Level</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                        <option value="expert">Expert</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="skillCategory">Category</label>
+                    <select id="skillCategory" required>
+                        <option value="">Select Category</option>
+                        <option value="frontend">Frontend</option>
+                        <option value="backend">Backend</option>
+                        <option value="database">Database</option>
+                        <option value="tools">Tools</option>
+                        <option value="design">Design</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Add Skill</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Navigation functionality
+        function showSection(sectionName) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.style.display = 'none');
+            
+            // Show selected section
+            document.getElementById(sectionName + '-section').style.display = 'block';
+            
+            // Update page title
+            const titles = {
+                'dashboard': 'Dashboard',
+                'projects': 'Projects',
+                'skills': 'Skills',
+                'about': 'About Me',
+                'contact': 'Contact Info',
+                'settings': 'Settings'
+            };
+            document.getElementById('pageTitle').textContent = titles[sectionName];
+            
+            // Update active nav item
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // Sidebar toggle for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebar.classList.toggle('mobile-visible');
+            sidebar.classList.toggle('mobile-hidden');
+        }
+
+        // Modal functionality
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Form submissions
+        function addProject(event) {
+            event.preventDefault();
+            const title = document.getElementById('projectTitle').value;
+            const description = document.getElementById('projectDescription').value;
+            const tech = document.getElementById('projectTech').value;
+            const url = document.getElementById('projectUrl').value;
+            
+            // In a real application, you would send this data to your backend
+            console.log('Adding project:', { title, description, tech, url });
+            
+            // Show success message
+            alert('Project added successfully!');
+            
+            // Reset form and close modal
+            event.target.reset();
+            closeModal('addProject');
+            
+            // Update project count
+            const currentCount = parseInt(document.getElementById('projectCount').textContent);
+            document.getElementById('projectCount').textContent = currentCount + 1;
+        }
+
+        function addSkill(event) {
+            event.preventDefault();
+            const name = document.getElementById('skillName').value;
+            const level = document.getElementById('skillLevel').value;
+            const category = document.getElementById('skillCategory').value;
+            
+            // In a real application, you would send this data to your backend
+            console.log('Adding skill:', { name, level, category });
+            
+            // Show success message
+            alert('Skill added successfully!');
+            
+            // Reset form and close modal
+            event.target.reset();
+            closeModal('addSkill');
+            
+            // Update skill count
+            const currentCount = parseInt(document.getElementById('skillCount').textContent);
+            document.getElementById('skillCount').textContent = currentCount + 1;
+        }
+
+        function saveAbout() {
+            const aboutText = document.getElementById('aboutText').value;
+            
+            // In a real application, you would send this data to your backend
+            console.log('Saving about text

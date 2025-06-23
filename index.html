@@ -933,4 +933,27 @@ window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=ppt.maker00@gmail.com
         });
     </script>
 </body>
+    <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyAuspfXC1lFeJUd9bgDksIUqDLSTJee-zE",
+    authDomain: "pptmaker-30d96.firebaseapp.com",
+    projectId: "pptmaker-30d96",
+    storageBucket: "pptmaker-30d96.firebasestorage.app",
+    messagingSenderId: "288864591463",
+    appId: "1:288864591463:web:d20d62b300f2c80a5cfec2",
+    measurementId: "G-RDE6Z1CGXN"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
 </html>

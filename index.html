@@ -957,3 +957,42 @@ window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=ppt.maker00@gmail.com
   const analytics = getAnalytics(app);
 </script>
 </html>
+// src/Website.jsx
+import React, { useEffect, useState } from 'react';
+import app from './firebase';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
+
+const db = getFirestore(app);
+
+function Website() {
+  const [post, setPost] = useState(null);
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      const docRef = doc(db, "posts", "first-post");
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setPost(docSnap.data());
+      } else {
+        console.log("No such document!");
+      }
+    };
+    fetchPost();
+  }, []);
+
+  return (
+    <div>
+      <h1>Main Website</h1>
+      {post ? (
+        <div>
+          <h2>{post.title}</h2>
+          <p>{post.content}</p>
+        </div>
+      ) : (
+        <p>Loading post...</p>
+      )}
+    </div>
+  );
+}
+
+export default Website;

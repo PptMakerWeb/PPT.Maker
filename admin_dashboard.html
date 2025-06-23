@@ -891,3 +891,29 @@
   const analytics = getAnalytics(app);
 </script>
 </html>
+// src/Dashboard.jsx
+import React from 'react';
+import app from './firebase';
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
+
+const db = getFirestore(app);
+
+function Dashboard() {
+  const saveData = async () => {
+    await setDoc(doc(db, "posts", "first-post"), {
+      title: "Title from dashboard",
+      content: "This content was saved from the admin dashboard"
+    });
+    alert("Data saved!");
+  };
+
+  return (
+    <div>
+      <h1>Admin Dashboard</h1>
+      <button onClick={saveData}>Save Post</button>
+    </div>
+  );
+}
+
+export default Dashboard;
+
